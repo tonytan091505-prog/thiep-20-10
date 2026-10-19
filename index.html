@@ -1,316 +1,575 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thiệp 3D Chúc Mừng Phụ Nữ 20/10</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Thiệp 3D 20/10 — Chúc mừng Ngày Phụ nữ Việt Nam</title>
+<style>
+  :root {
+    --paper: #fff7f0;
+    --paper-pink: #f9e5e2;
+    --pink: #c94f75;
+    --pink-deep: #963d50;
+    --gold: #c99b5a;
+    --brown: #805047;
+    --ink: #75433f;
+  }
+  * { box-sizing: border-box; }
+  html, body { width: 100%; min-height: 100%; margin: 0; }
+  body {
+    min-height: 100svh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    padding: 26px 16px 78px;
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    background:
+      radial-gradient(ellipse at 50% 34%, rgba(255,249,235,.90) 0%, rgba(249,224,203,.72) 43%, transparent 72%),
+      linear-gradient(125deg, #c9ab91 0%, #f2ddc8 42%, #d8b69b 100%);
+    perspective: 1600px;
+  }
 
-        body {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            perspective: 1200px;
-        }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .48;
+    background:
+      radial-gradient(circle at 9% 18%, rgba(255,255,255,.72) 0 2px, transparent 3px),
+      radial-gradient(circle at 83% 13%, rgba(255,255,255,.66) 0 3px, transparent 4px),
+      radial-gradient(circle at 91% 43%, rgba(255,235,196,.8) 0 2px, transparent 4px),
+      linear-gradient(90deg, transparent 0%, rgba(255,255,255,.20) 48%, transparent 68%);
+    filter: blur(1px);
+  }
 
-        /* Canvas hiệu ứng pháo hoa và bướm */
-        #effects-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
+  #effects-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%; height: 100%;
+    z-index: 30;
+    pointer-events: none;
+  }
 
-        /* Container của Thiệp 3D */
-        .card-container {
-            width: 320px;
-            height: 450px;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.8s ease;
-            cursor: pointer;
-            z-index: 5;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            border-radius: 12px;
-        }
+  .scene {
+    position: relative;
+    width: min(1000px, 95vw);
+    height: min(610px, 73vh);
+    min-height: 390px;
+    z-index: 2;
+    perspective: 1600px;
+  }
 
-        /* Mặt thiệp */
-        .card-front, .card-inside {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 12px;
-            overflow: hidden;
-            backface-visibility: hidden;
-        }
+  .card-container {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    filter: drop-shadow(0 25px 20px rgba(93,54,37,.20));
+  }
 
-        /* Mặt trước (Nắp thiệp có thể mở) */
-        .card-front {
-            background: linear-gradient(45deg, #d4145a, #fbb03b);
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            transform-origin: left;
-            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 2;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-        }
+  /* Mặt trong thiệp */
+  .card-inside {
+    position: absolute;
+    top: 0; left: 25%;
+    width: 50%; height: 100%;
+    display: flex;
+    overflow: visible;
+    background: #f7e4df;
+    border: 2px solid #d7ad8b;
+    box-shadow: inset 0 0 22px rgba(167,101,84,.10), 0 8px 20px rgba(100,55,39,.13);
+    transition: left 1.2s cubic-bezier(.25, 1, .3, 1), width 1.2s cubic-bezier(.25, 1, .3, 1);
+    will-change: left, width;
+    transform: translateZ(0);
+  }
+  .card-container.open .card-inside { left: 0; width: 100%; }
 
-        .card-front h2 {
-            font-size: 26px;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
+  .page {
+    position: relative;
+    width: 50%; height: 100%;
+    padding: clamp(10px, 2vw, 22px);
+    flex: 0 0 50%;
+    background:
+      radial-gradient(ellipse at 50% 44%, rgba(255,255,247,.88), rgba(250,230,224,.94)),
+      var(--paper-pink);
+  }
+  .page-left { border-right: 1px solid rgba(191,140,99,.7); }
+  .page-right { border-left: 1px solid rgba(255,255,255,.9); }
 
-        .card-front p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
+  .page-frame {
+    height: 100%; width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(12px, 2.5vw, 30px) clamp(8px, 2vw, 22px);
+    border: 1px solid var(--gold);
+    outline: 1px solid rgba(215,157,151,.75);
+    outline-offset: -7px;
+    text-align: center;
+  }
+  .page-frame::before, .page-frame::after {
+    content: "❀  ✧  ❀";
+    position: absolute;
+    color: #d79aaa;
+    letter-spacing: 7px;
+    font-size: clamp(12px, 1.8vw, 19px);
+    opacity: .8;
+  }
+  .page-frame::before { top: 14px; left: 9px; }
+  .page-frame::after { bottom: 14px; right: 9px; transform: rotate(180deg); }
 
-        .card-front .heart-icon {
-            font-size: 50px;
-            margin-top: 15px;
-            animation: pulse 1.5s infinite;
-        }
+  .wish-text {
+    width: 100%; max-width: 310px;
+    color: #874a45;
+    font-style: italic;
+    font-size: clamp(12px, 1.65vw, 19px);
+    line-height: 1.85;
+    white-space: pre-line;
+    outline: none;
+    cursor: text;
+    text-shadow: 0 1px rgba(255,255,255,.7);
+  }
+  .page-heart { display: block; color: #bd4968; font-size: 30px; margin-top: 12px; }
+  .love-sign {
+    display: block; margin-top: 18px;
+    color: #a3455c; font-size: clamp(17px, 2.2vw, 25px); font-style: italic;
+  }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
-        }
+  /* Bìa thiệp */
+  .card-front {
+    position: absolute;
+    top: 0; left: 25%;
+    width: 50%; height: 100%;
+    z-index: 6;
+    padding: 11px;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    cursor: pointer;
+    border: 2px solid #d6a273;
+    background: linear-gradient(145deg, #fff7f1 0%, #fbeae5 55%, #f3d9d4 100%);
+    box-shadow: 5px 7px 16px rgba(90,52,39,.22), inset 0 0 0 1px rgba(255,255,255,.85);
+    transition: transform 1.35s cubic-bezier(.2, .8, .2, 1), left 1.2s cubic-bezier(.25, 1, .3, 1);
+    will-change: transform, left;
+  }
+  .cover-frame {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 14px;
+    text-align: center;
+    border: 1px solid var(--gold);
+    outline: 1px solid #e8c2ba;
+    outline-offset: -7px;
+    overflow: hidden;
+  }
+  .cover-frame::before, .cover-frame::after {
+    content: "❧";
+    position: absolute;
+    color: #c99b5a;
+    font-size: 40px;
+    line-height: 1;
+  }
+  .cover-frame::before { left: 11px; top: 7px; }
+  .cover-frame::after { right: 11px; bottom: 7px; transform: rotate(180deg); }
 
-        /* Mặt bên trong thiệp */
-        .card-inside {
-            background: #ffffff;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 25px;
-            z-index: 1;
-            border: 2px solid #ffd1dc;
-        }
+  [contenteditable="true"] { outline: none; cursor: text; }
+  [contenteditable="true"]:focus { outline: 1px dashed #d58b9a; outline-offset: 3px; }
 
-        .card-inside h3 {
-            color: #d4145a;
-            font-size: 20px;
-            text-align: center;
-            margin-bottom: 10px;
-        }
+  .cover-kicker { color: #ae4762; font-size: clamp(16px, 2.6vw, 29px); font-style: italic; margin-bottom: 4px; }
+  .cover-title {
+    margin: 0;
+    color: #c34d71;
+    font-size: clamp(42px, 7vw, 76px);
+    line-height: 1.05;
+    letter-spacing: -2px;
+    text-shadow: 1px 2px 0 #efc0c5, 0 4px 8px rgba(153,71,90,.12);
+  }
+  .cover-subtitle { margin: 9px 0 0; color: #8e4939; font-size: clamp(14px, 2.1vw, 23px); font-style: italic; }
+  .cover-bouquet { margin-top: clamp(14px, 3vh, 29px); font-size: clamp(28px, 4.6vw, 53px); filter: drop-shadow(0 7px 4px rgba(116,65,60,.22)); }
+  .cover-bow { font-size: clamp(27px, 4vw, 45px); margin-top: -2px; filter: drop-shadow(0 4px 3px rgba(116,65,60,.2)); }
+  .cover-note { color: #8e4939; font-size: clamp(11px, 1.5vw, 16px); font-style: italic; margin-top: 7px; max-width: 190px; line-height: 1.5; }
+  .cover-hint { position: absolute; bottom: 13px; color: #b37c75; font-family: Arial, sans-serif; font-size: 10px; letter-spacing: .5px; }
 
-        .message-area {
-            width: 100%;
-            height: 260px;
-            border: 1px dashed #ff9a9e;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 15px;
-            line-height: 1.6;
-            color: #444;
-            background-color: #fff5f7;
-            resize: none;
-            outline: none;
-            font-family: inherit;
-        }
+  .card-container.open .card-front { transform: rotateY(-165deg); pointer-events: none; }
 
-        .instruction {
-            font-size: 12px;
-            color: #888;
-            text-align: center;
-            margin-top: 5px;
-        }
+  /* Bó hoa 3D Pop-up Giữ Nguyên */
+  .popup-bouquet {
+    position: absolute;
+    z-index: 4;
+    left: 31%; bottom: -1%;
+    width: 38%; height: 80%;
+    transform: translate3d(0, 45px, 0) scale(.6);
+    transform-origin: center bottom;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 1.1s .25s cubic-bezier(.16, 1, .3, 1), opacity .6s .25s ease;
+    will-change: transform, opacity;
+  }
+  .card-container.open .popup-bouquet { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
 
-        /* Khi thiệp mở */
-        .card-container.open .card-front {
-            transform: rotateY(-160deg);
-        }
+  .stem {
+    position: absolute; left: 50%; top: 36%; height: 43%; width: 3px;
+    border-radius: 50%; background: linear-gradient(90deg, #537e48, #b5b96f, #486e40);
+    transform-origin: top; box-shadow: 1px 0 2px #fff7c7;
+  }
+  .stem.s1 { transform: rotate(-25deg); height: 40%; left: 39%; }
+  .stem.s2 { transform: rotate(22deg); height: 44%; left: 57%; }
+  .stem.s3 { transform: rotate(7deg); height: 45%; left: 50%; }
 
-        /* Bảng điều khiển phụ */
-        .controls {
-            position: absolute;
-            bottom: 20px;
-            z-index: 20;
-            display: flex;
-            gap: 10px;
-        }
+  .flower {
+    position: absolute;
+    line-height: 1;
+    font-size: clamp(28px, 5vw, 61px);
+    filter: drop-shadow(0 6px 4px rgba(102,59,52,.25));
+    animation: flower-sway 4s ease-in-out infinite alternate;
+    will-change: transform;
+    transform-origin: bottom center;
+  }
+  .flower-1 { left: 3%; top: 30%; transform: rotate(-22deg); }
+  .flower-2 { left: 21%; top: 14%; animation-delay: -.7s; }
+  .flower-3 { left: 40%; top: 5%; animation-delay: -.3s; }
+  .flower-4 { left: 62%; top: 18%; animation-delay: -1s; }
+  .flower-5 { left: 77%; top: 32%; animation-delay: -.5s; }
+  .flower-6 { left: 35%; top: 32%; animation-delay: -.9s; }
 
-        .btn {
-            background: #d4145a;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            transition: 0.3s;
-        }
+  .leaf-cluster { position: absolute; left: 18%; top: 46%; font-size: clamp(25px, 4vw, 45px); letter-spacing: -9px; filter: drop-shadow(0 4px 2px #5a6f4230); }
+  
+  .bouquet-wrap {
+    position: absolute; left: 22%; top: 53%; width: 58%; height: 37%;
+    clip-path: polygon(13% 0, 87% 0, 100% 100%, 0 100%);
+    border: 1px solid #d09d70;
+    background: linear-gradient(100deg, #e9b8b9 0%, #fff0e9 35%, #e7b4b9 60%, #f9dfd7 100%);
+    box-shadow: inset 0 0 12px rgba(157,81,89,.25), 0 10px 15px rgba(91,55,47,.2);
+  }
+  .bouquet-wrap::before {
+    content: ""; position: absolute; inset: 7px;
+    border: 1px solid rgba(201,151,90,.85);
+    clip-path: polygon(13% 0, 87% 0, 100% 100%, 0 100%);
+  }
 
-        .btn:hover {
-            background: #b00f48;
-            transform: translateY(-2px);
-        }
-    </style>
+  .ribbon {
+    position: absolute; z-index: 2; left: 39%; top: 57%;
+    font-size: clamp(39px, 6vw, 65px);
+    filter: drop-shadow(0 5px 4px rgba(105,56,61,.28));
+  }
+  .bouquet-label {
+    position: absolute; z-index: 3; left: 27%; bottom: 5%; width: 49%;
+    padding: 9px 3px; text-align: center;
+    background: linear-gradient(120deg, #fff8f2, #f6d8d2);
+    border: 1px solid #d2a276; color: #8c4c4a;
+    box-shadow: 0 4px 8px rgba(93,53,40,.17);
+    font-size: clamp(9px, 1.25vw, 14px); font-style: italic;
+  }
+
+  .glimmer {
+    position: absolute; z-index: 5; color: #fff9d2;
+    text-shadow: 0 0 6px #ffc76d, 0 0 14px #ffbb5a;
+    animation: twinkle 2s ease-in-out infinite alternate;
+    will-change: opacity, transform;
+  }
+  .g1 { left: 5%; top: 12%; font-size: 24px; }
+  .g2 { left: 77%; top: 5%; font-size: 19px; animation-delay: -.6s; }
+  .g3 { left: 88%; top: 24%; font-size: 16px; animation-delay: -.3s; }
+  .g4 { left: 15%; top: 43%; font-size: 18px; animation-delay: -.9s; }
+
+  @keyframes flower-sway { 
+    from { transform: rotate(-2.5deg) translateY(0); } 
+    to { transform: rotate(3deg) translateY(-3px); } 
+  }
+  @keyframes twinkle { 
+    from { opacity: .5; transform: scale(.9); } 
+    to { opacity: 1; transform: scale(1.08); } 
+  }
+
+  .controls {
+    position: fixed; left: 50%; bottom: 19px; z-index: 40;
+    transform: translateX(-50%); display: flex; gap: 9px; align-items: center;
+    max-width: calc(100vw - 20px);
+  }
+  .btn {
+    border: 1px solid rgba(255,255,255,.68);
+    padding: 11px 19px; border-radius: 999px;
+    color: white; background: linear-gradient(135deg, #c85175, #a73c61);
+    box-shadow: 0 6px 15px rgba(109,50,62,.24);
+    cursor: pointer; font-size: 13px; font-weight: 700;
+    transition: transform .28s cubic-bezier(.2,.8,.2,1), filter .28s ease, box-shadow .28s ease;
+  }
+  .btn:hover { transform: translateY(-2px); filter: brightness(1.06); box-shadow: 0 8px 19px rgba(109,50,62,.27); }
+  .btn:active { transform: translateY(0) scale(.98); }
+
+  .hint {
+    position: fixed; z-index: 5; top: 15px; left: 50%; transform: translateX(-50%);
+    text-align: center; color: #774b42; font: 12px/1.5 Arial, sans-serif;
+    padding: 7px 12px; border: 1px solid rgba(255,255,255,.45);
+    background: rgba(255,247,238,.42); border-radius: 20px; backdrop-filter: blur(5px);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 48px 8px 78px; }
+    .scene { width: 96vw; height: min(570px, 68vh); min-height: 380px; }
+    .card-front { padding: 7px; }
+    .cover-frame { padding: 8px; }
+    .cover-note { max-width: 125px; }
+    .page { padding: 7px; }
+    .page-frame { padding: 10px 5px; }
+    .page-frame::before, .page-frame::after { font-size: 10px; letter-spacing: 2px; }
+    .wish-text { font-size: clamp(10px, 2.7vw, 13px); line-height: 1.65; }
+    .popup-bouquet { left: 28%; width: 44%; height: 72%; }
+    .bouquet-wrap { left: 18%; width: 64%; }
+    .ribbon { left: 34%; }
+    .hint { top: 8px; font-size: 10px; }
+    .btn { padding: 10px 15px; font-size: 12px; }
+  }
+</style>
 </head>
 <body>
+<canvas id="effects-canvas" aria-hidden="true"></canvas>
+<div class="hint">Bấm vào bìa hoặc nút bên dưới để mở thiệp · Bấm vào chữ để tự sửa lời chúc</div>
 
-    <!-- Canvas dành cho hiệu ứng pháo hoa, hoa và bướm -->
-    <canvas id="effects-canvas"></canvas>
-
-    <!-- Khối Thiệp 3D -->
-    <div class="card-container" id="card" onclick="toggleCard()">
-        <!-- Mặt ngoài (Bìa thiệp) -->
-        <div class="card-front">
-            <h2>CHÚC MỪNG<br>20/10</h2>
-            <p>Ngày Phụ Nữ Việt Nam</p>
-            <div class="heart-icon">🌸</div>
-            <p style="margin-top: 20px; font-size: 12px;">(Chạm để mở thiệp)</p>
+<main class="scene">
+  <div class="card-container" id="card">
+    <section class="card-inside" aria-label="Mặt trong thiệp">
+      <div class="page page-left">
+        <div class="page-frame">
+          <div>
+            <p class="wish-text" contenteditable="true" spellcheck="false">Những đóa hoa
+tươi đẹp nhất
+luôn dành cho
+những người phụ nữ
+tuyệt vời!</p>
+            <span class="page-heart">♡</span>
+          </div>
         </div>
-
-        <!-- Mặt trong thiệp -->
-        <div class="card-inside" onclick="event.stopPropagation()">
-            <h3>Chúc Mừng Ngày 20/10!</h3>
-            <textarea class="message-area" id="customMessage">Nhân ngày Phụ nữ Việt Nam 20/10, chúc bạn/chị/em luôn xinh đẹp, rạng rỡ, hạnh phúc và gặp thật nhiều may mắn trong cuộc sống! 🌸✨💖</textarea>
-            <div class="instruction">*(Bạn có thể bấm vào ô trên để chỉnh sửa lời chúc)*</div>
+      </div>
+      <div class="page page-right">
+        <div class="page-frame">
+          <div>
+            <p class="wish-text" contenteditable="true" spellcheck="false">Nhân ngày 20/10,
+chúc em luôn xinh đẹp,
+luôn mạnh khỏe,
+luôn hạnh phúc
+và gặp nhiều điều tốt đẹp
+trong cuộc sống.
+Cảm ơn em vì đã luôn
+là một người thật đặc biệt!</p>
+            <span class="love-sign" contenteditable="true" spellcheck="false">Yêu em! ♡</span>
+          </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Bó hoa 3D ở trung tâm giữ nguyên hình dáng -->
+    <div class="popup-bouquet" aria-hidden="true">
+      <span class="stem s1"></span><span class="stem s2"></span><span class="stem s3"></span>
+      <span class="flower flower-1">🌷</span>
+      <span class="flower flower-2">🌹</span>
+      <span class="flower flower-3">🌸</span>
+      <span class="flower flower-4">🌼</span>
+      <span class="flower flower-5">🌷</span>
+      <span class="flower flower-6">🌹</span>
+      <span class="leaf-cluster">🌿🍃🌿</span>
+      <div class="bouquet-wrap"></div>
+      <div class="ribbon">🎀</div>
+      <div class="bouquet-label" contenteditable="true" spellcheck="false">Happy Vietnamese Women's Day ♥</div>
+      <span class="glimmer g1">✧</span><span class="glimmer g2">✦</span>
+      <span class="glimmer g3">✧</span><span class="glimmer g4">✦</span>
     </div>
 
-    <div class="controls">
-        <button class="btn" onclick="toggleCard()">Mở / Đóng Thiệp</button>
-    </div>
+    <section class="card-front" id="cover" role="button" tabindex="0" aria-label="Mở thiệp 20 tháng 10">
+      <div class="cover-frame">
+        <div class="cover-kicker" contenteditable="true" spellcheck="false">Chúc mừng</div>
+        <h1 class="cover-title" contenteditable="true" spellcheck="false">20/10</h1>
+        <div class="cover-subtitle" contenteditable="true" spellcheck="false">Quốc tế Phụ nữ</div>
+        <div class="cover-bouquet" aria-hidden="true">🌷🌸🌷🌹</div>
+        <div class="cover-bow" aria-hidden="true">🎀</div>
+        <p class="cover-note" contenteditable="true" spellcheck="false">Bạn là điều tuyệt vời nhất!</p>
+        <span class="cover-hint">✧ CHẠM ĐỂ MỞ THIỆP ✧</span>
+      </div>
+    </section>
+  </div>
+</main>
 
-    <script>
-        const card = document.getElementById('card');
-        const canvas = document.getElementById('effects-canvas');
-        const ctx = canvas.getContext('2d');
+<div class="controls">
+  <button class="btn" id="toggleButton" type="button">♡ Mở thiệp ♡</button>
+</div>
 
-        let isOpen = false;
-        let particles = [];
-        let butterflies = [];
+<script>
+  const card = document.getElementById('card');
+  const cover = document.getElementById('cover');
+  const toggleButton = document.getElementById('toggleButton');
+  const canvas = document.getElementById('effects-canvas');
+  const ctx = canvas.getContext('2d');
+  
+  let isOpen = false;
+  let particles = [];
+  let butterflies = [];
+  let animationId = null;
+  let lastTime = performance.now();
 
-        // Thay đổi kích thước Canvas theo màn hình
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+  function resizeCanvas() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(window.innerWidth * dpr);
+    canvas.height = Math.floor(window.innerHeight * dpr);
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
 
-        // Mở/Đóng thiệp
-        function toggleCard() {
-            isOpen = !isOpen;
-            if (isOpen) {
-                card.classList.add('open');
-                triggerExplosion(); // Bắn pháo hoa & hoa
-                spawnButterflies(); // Thả bướm bay
-            } else {
-                card.classList.remove('open');
-            }
-        }
+  function toggleCard() {
+    isOpen = !isOpen;
+    card.classList.toggle('open', isOpen);
+    toggleButton.textContent = isOpen ? '♡ Đóng thiệp ♡' : '♡ Mở thiệp ♡';
 
-        // Tạo hiệu ứng Pháo hoa + Mưa hoa
-        function triggerExplosion() {
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-            const colors = ['#ff4d6d', '#ff758f', '#ffb3c1', '#ffd700', '#ffffff', '#ff85a1'];
-            const flowerEmojis = ['🌸', '🌺', '🌹', '✨', '💖', '🌷'];
+    if (isOpen) {
+      setTimeout(() => {
+        const rect = card.getBoundingClientRect();
+        // Bắt đầu bùng hiệu ứng hoa xung quanh vị trí giữa bó hoa
+        triggerFlowerBurst(rect.left + rect.width * 0.5, rect.top + rect.height * 0.5);
+        spawnButterflies(7);
+        startAnimation();
+      }, 200);
+    }
+  }
 
-            // Bắn hạt pháo pháo hoa và bông hoa
-            for (let i = 0; i < 80; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 8 + 2;
-                particles.push({
-                    x: centerX,
-                    y: centerY,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed,
-                    size: Math.random() * 20 + 10,
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    emoji: flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)],
-                    alpha: 1,
-                    decay: Math.random() * 0.015 + 0.005,
-                    gravity: 0.08
-                });
-            }
-        }
+  cover.addEventListener('click', toggleCard);
+  cover.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleCard();
+    }
+  });
+  toggleButton.addEventListener('click', toggleCard);
 
-        // Tạo hiệu ứng bướm bay
-        function spawnButterflies() {
-            for (let i = 0; i < 6; i++) {
-                butterflies.push({
-                    x: window.innerWidth / 2 + (Math.random() - 0.5) * 100,
-                    y: window.innerHeight / 2 + (Math.random() - 0.5) * 100,
-                    vx: (Math.random() - 0.5) * 3,
-                    vy: -Math.random() * 2 - 1,
-                    size: Math.random() * 10 + 20,
-                    wingAngle: 0,
-                    wingSpeed: Math.random() * 0.2 + 0.1,
-                    alpha: 1
-                });
-            }
-        }
+  // Hiệu ứng hoa bung ra cực mượt bằng Canvas Particles
+  function triggerFlowerBurst(x, y) {
+    const symbols = ['🌸', '🌺', '🌷', '🌹', '✨', '✧', '✦', '❀', '💖'];
+    const colors = ['#ff6687', '#ff9fba', '#ffd67d', '#fff7dc', '#e9a9db', '#ffffff'];
+    const totalParticles = 100;
 
-        // Render hiệu ứng hoạt họa (Animation Loop)
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < totalParticles; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      // Tốc độ văng đa dạng tạo chiều sâu
+      const speed = 2.5 + Math.random() * 6.5;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 1.2,
+        size: 14 + Math.random() * 18,
+        glyph: symbols[Math.floor(Math.random() * symbols.length)],
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 1,
+        decay: 0.005 + Math.random() * 0.008,
+        gravity: 0.05 + Math.random() * 0.04,
+        rotation: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.1
+      });
+    }
+  }
 
-            // Cập nhật & Vẽ các hạt pháo hoa/hoa
-            for (let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += p.gravity;
-                p.alpha -= p.decay;
+  function spawnButterflies(amount) {
+    const rect = card.getBoundingClientRect();
+    for (let i = 0; i < amount; i++) {
+      butterflies.push({
+        x: rect.left + rect.width * (0.3 + Math.random() * 0.4),
+        y: rect.top + rect.height * (0.3 + Math.random() * 0.4),
+        vx: (Math.random() - 0.5) * 1.8,
+        vy: -0.8 - Math.random() * 1.2,
+        size: 18 + Math.random() * 12,
+        phase: Math.random() * Math.PI * 2,
+        alpha: 1,
+        life: 220 + Math.random() * 140
+      });
+    }
+  }
 
-                if (p.alpha <= 0) {
-                    particles.splice(i, 1);
-                    continue;
-                }
+  function startAnimation() {
+    if (!animationId) {
+      lastTime = performance.now();
+      animationId = requestAnimationFrame(animate);
+    }
+  }
 
-                ctx.globalAlpha = p.alpha;
-                ctx.font = `${p.size}px serif`;
-                ctx.fillText(p.emoji, p.x, p.y);
-            }
+  function animate(now) {
+    const dt = Math.min((now - lastTime) / 16.667, 2);
+    lastTime = now;
 
-            // Cập nhật & Vẽ bướm
-            for (let i = butterflies.length - 1; i >= 0; i--) {
-                let b = butterflies[i];
-                b.x += b.vx + Math.sin(b.wingAngle) * 1.5;
-                b.y += b.vy;
-                b.wingAngle += b.wingSpeed;
-                b.alpha -= 0.003;
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-                if (b.alpha <= 0 || b.y < -50) {
-                    butterflies.splice(i, 1);
-                    continue;
-                }
+    // Cập nhật và vẽ các cánh hoa bung ra
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += p.gravity * dt;
+      p.vx *= Math.pow(0.985, dt);
+      p.alpha -= p.decay * dt;
+      p.rotation += p.spin * dt;
 
-                ctx.globalAlpha = b.alpha;
-                ctx.font = `${b.size}px serif`;
-                // Đảo cánh bướm đơn giản
-                ctx.fillText('🦋', b.x, b.y);
-            }
+      if (p.alpha <= 0) {
+        particles.splice(i, 1);
+        continue;
+      }
 
-            requestAnimationFrame(animate);
-        }
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.alpha);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation);
+      ctx.font = `${p.size}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 8;
+      ctx.fillText(p.glyph, 0, 0);
+      ctx.restore();
+    }
 
-        animate();
-    </script>
+    // Cập nhật bướm bay
+    for (let i = butterflies.length - 1; i >= 0; i--) {
+      const b = butterflies[i];
+      b.phase += 0.08 * dt;
+      b.x += (b.vx + Math.sin(b.phase) * 1.2) * dt;
+      b.y += b.vy * dt;
+      b.life -= dt;
+      b.alpha = Math.min(1, b.life / 60);
+
+      if (b.life <= 0 || b.y < -50) {
+        butterflies.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, b.alpha);
+      ctx.translate(b.x, b.y);
+      ctx.rotate(Math.sin(b.phase) * 0.15);
+      ctx.font = `${b.size}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = '#ffb4d0';
+      ctx.shadowBlur = 8;
+      ctx.fillText('🦋', 0, 0);
+      ctx.restore();
+    }
+
+    if (particles.length > 0 || butterflies.length > 0) {
+      animationId = requestAnimationFrame(animate);
+    } else {
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      animationId = null;
+    }
+  }
+
+  // Chặn kích hoạt mở thiệp khi nhấn chỉnh sửa văn bản
+  document.querySelectorAll('[contenteditable="true"]').forEach((element) => {
+    element.addEventListener('click', (e) => e.stopPropagation());
+    element.addEventListener('keydown', (e) => e.stopPropagation());
+  });
+</script>
 </body>
 </html>
