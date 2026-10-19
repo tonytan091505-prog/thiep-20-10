@@ -543,7 +543,6 @@ là một người thật đặc biệt!</p>
         butterflies.splice(i, 1);
         continue;
       }
-
       ctx.save();
       ctx.globalAlpha = Math.max(0, b.alpha);
       ctx.translate(b.x, b.y);
@@ -564,7 +563,6 @@ là một người thật đặc biệt!</p>
       animationId = null;
     }
   }
-
   // Chặn kích hoạt mở thiệp khi nhấn chỉnh sửa văn bản
   document.querySelectorAll('[contenteditable="true"]').forEach((element) => {
     element.addEventListener('click', (e) => e.stopPropagation());
